@@ -10,9 +10,9 @@ public class Room {
     public Room(String name, String desc) {
         this.name = name;
         this.desc = desc;
-        exits = new ArrayList<>();
-        contents = new ArrayList<>();
-        characters = new ArrayList<>();
+        this.exits = new ArrayList<>();
+        this.contents = new ArrayList<>();
+        this.characters = new ArrayList<>();
     }
 
     public void addExit(Room room) {

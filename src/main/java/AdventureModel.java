@@ -1,25 +1,38 @@
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Objects;
 import java.util.Scanner;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 public class AdventureModel {
     private Player player;
+    private QuestManager questManager;
 
     public AdventureModel() {}
 
-    public void initGame() {
+    public void initGame() throws IOException, ParseException {
         Room[] rooms = new Room[16];
         Item[] items = new Item[10];
         Character[] characters = new Character[5];
+        questManager = new QuestManager();
+        questManager.initQuests();
 
-        items[0] = new Item("Short Sword",  Item.ItemType.WEAPON, 8, 0);
-        items[1] = new Item("Padded Armor",  Item.ItemType.ARMOR, 11);
-        items[2] = new Item("Health Potion", Item.ItemType.POTION);
+        JSONParser parser = new JSONParser();
+        Reader reader = new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream("/dialog.json")));
+        JSONObject jsonObj = (JSONObject) parser.parse(reader);
 
         characters[0] = new Character("Dark Slime", 3, 5, null, Character.CharType.ENEMY);
-        characters[1] = new Character("Colton", 5, 9, items[0], Character.CharType.ALLY);
+        characters[1] = new Character("Colton", 5, 9, items[0], Character.CharType.ALLY, jsonObj);
+
+        items[0] = new Item("Short Sword", Item.ItemType.WEAPON, 8, 0);
+        items[1] = new Item("Padded Armor", Item.ItemType.ARMOR, 11);
+        items[2] = new Item("Health Potion", Item.ItemType.POTION);
 
         // Progression order is backwards to have link backs.
-
         rooms[2] = new Room("Forest", "This area contains the first ally quest giver.");
         rooms[2].addCharacter(characters[1]);
 
@@ -38,7 +51,7 @@ public class AdventureModel {
         player = new Player(rooms[0], 10);
     }
 
-    public void startGame() {
+    public void startGame() throws IOException, ParseException {
         initGame();
 
         Room currentLocation = player.getCurrentRoom();
@@ -171,23 +184,30 @@ public class AdventureModel {
                         player.removeInventoryItem(itemNum);
                     }
                     else {
-                        System.out.println("Cannot use " + itemToUse.getName() + " in combat.");
+                        System.out.println("Cannot use " + itemToUse.getName());
                     }
-
-
                 }
-                case "ATTACK" -> {
+                case "FIGHT" -> {
                     int characterNum = Integer.parseInt(input.next());
-                    Character targetEnemy = currentLocation.getCharacter(characterNum);
-                    if (targetEnemy.getType().equals(Character.CharType.ENEMY)) {
-                        player.fightEnemy(targetEnemy);
-                        targetEnemy.fightPlayer(player);
-                        if (targetEnemy.getDeathStatus()) {
-                            currentLocation.killCharacter(characterNum);
-                            System.out.println("You killed " + targetEnemy + ".");
-                        }
+                    if (currentLocation.getCharacters().isEmpty()) {
+                        System.out.println("There is no one to Attack.");
                     }
-                    else System.out.println("You cannot attack allies!");
+                    else {
+                        Character targetEnemy = currentLocation.getCharacter(characterNum);
+                        if (targetEnemy.getType().equals(Character.CharType.ENEMY)) {
+                            player.fightEnemy(targetEnemy);
+                            for (Character entity : currentLocation.getCharacters()) {
+                                if (entity.getType() == Character.CharType.ENEMY) {
+                                    entity.fightPlayer(player);
+                                }
+                            }
+                            if (targetEnemy.getDeathStatus()) {
+                                currentLocation.killCharacter(characterNum);
+                                System.out.println("You killed " + targetEnemy.getName() + ".");
+                            }
+                        }
+                        else System.out.println("You cannot attack allies!");
+                    }
                 }
                 case "STATS" -> {
                     System.out.println("Health: " + player.getCurrentHealth() + "/" + player.getMaxHealth());
@@ -197,6 +217,52 @@ public class AdventureModel {
                     else System.out.println("Armor: None");
                     if (rightHand != null) System.out.println("Right Hand: " + rightHand.getName() + " | 1d" + rightHand.getDiceMax() + " + " + rightHand.getModifier());
                     else System.out.println("Right Hand: Empty");
+                }
+                case "JOURNAL" -> {
+                    System.out.println("Journal: \n");
+                    int counter = 1;
+                    if (questManager.getAcceptedQuests().isEmpty()) {
+                        System.out.println("You have not accepted any quests.");
+                    }
+                    else {
+                        for (Quest quest : questManager.getAcceptedQuests()) {
+                            System.out.println(counter + ": " + quest.getQuestName() + " | Description: " + quest.getQuestDescription());
+                            System.out.println(quest.getRequirements());
+                        }
+                    }
+                }
+                case "TALK" -> {
+                    if (enemyCheck(currentLocation)) {
+                        System.out.println("You cannot talk to allies in the middle of combat!");
+                        input = new Scanner(System.in);
+                        break;
+                    }
+
+                    Character ally = currentLocation.getCharacter(Integer.parseInt(input.next()));
+                    Dialogue selectedDialogue = ally.getDialogueBasedOnCondition(ally.getCondition());
+                    Quest relQuest = null;
+                    if (selectedDialogue.getRelQuestId() != 0) relQuest = questManager.getQuest(selectedDialogue.getRelQuestId());
+                    if (relQuest != null) {
+                        System.out.println(ally.getName() + ": " + selectedDialogue.getText() + " | Reward: " + selectedDialogue.getReward() + "\n");
+                        System.out.println("y/n");
+
+                        do {
+                            if (input.next().equalsIgnoreCase("Y")) {
+                                System.out.println(relQuest.getQuestName() + " added to journal.");
+                                questManager.acceptQuest(relQuest);
+                                ally.advanceDialog(selectedDialogue.getDialogJumpPoint());
+                                break;
+                            } else if (input.next().equalsIgnoreCase("N")) {
+                                System.out.println("Quest denied");
+                                break;
+                            } else {
+                                System.out.println("Please select a valid option.");
+                            }
+                        } while (true);
+                    }
+                    else {
+                        System.out.println(ally.getName() + ": " + selectedDialogue.getText());
+                    }
                 }
                 case "HELP" -> showMenu();
                 case "EXIT" -> System.exit(0);
@@ -212,6 +278,8 @@ public class AdventureModel {
         System.out.println("Attack <enemy #>");
         System.out.println("Inventory <item #>");
         System.out.println("Stats");
+        System.out.println("Journal");
+        System.out.println("Talk");
         System.out.println("Take <item #>");
         System.out.println("Drop <item #>");
         System.out.println("Use <item #>");

@@ -10,7 +10,6 @@ public class Player {
     private final ArrayList<Item> inventory;
 
     public Player(Room location, int health) {
-        super();
         this.currentRoom = location;
         this.inventory = new ArrayList<>();
         this.maxHealth = health;
@@ -59,11 +58,9 @@ public class Player {
         switch (item.getType()) {
             case ARMOR -> {
                 if (equippedArmor != null) System.out.println("You don't have any armor equiped.");
-                else equippedArmor = null;
             }
             case WEAPON -> {
                 if (rightHand != null) System.out.println("You don't have anything equiped in your right hand.");
-                else rightHand = null;
             }
             default -> System.out.println("This item isn't equipable.");
         }
