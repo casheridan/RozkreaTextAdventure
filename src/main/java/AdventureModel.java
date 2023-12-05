@@ -18,7 +18,7 @@ public class AdventureModel {
     public void initGame() throws IOException, ParseException {
         Room[] rooms = new Room[12];
         Item[] items = new Item[10];
-        Character[] characters = new Character[8];
+        Character[] characters = new Character[16];
         questManager = new QuestManager();
         questManager.initQuests();
 
@@ -26,47 +26,55 @@ public class AdventureModel {
         Reader reader = new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream("/dialog.json")));
         JSONObject jsonObj = (JSONObject) parser.parse(reader);
 
-        items[0] = new Item("Short Sword", Item.ItemType.WEAPON, 6, 0, 5);
+        items[0] = new Item("Short Sword", Item.ItemType.WEAPON, 8, 1, 5);
         items[1] = new Item("Padded Armor", Item.ItemType.ARMOR, 11, 5);
         items[2] = new Item("Health Potion", Item.ItemType.POTION, 10);
         items[3] = new Item("Gold Pouch", Item.ItemType.CONSUMABLE, 1);
-        items[4] = new Item("Long Sword", Item.ItemType.WEAPON, 10, 2, 15);
+        items[4] = new Item("Long Sword", Item.ItemType.WEAPON, 10, 3, 15);
         items[5] = new Item("Chainmail", Item.ItemType.ARMOR, 13, 15);
         items[6] = new Item("Map of Hitpoints", Item.ItemType.MISC, 5);
 
         characters[0] = new Character("Dark Slime", 3, 5, null, Character.CharType.ENEMY, 4, 1);
-        characters[1] = new Character("Stranger", 5, 9, items[0], Character.CharType.ALLY, jsonObj);
-        characters[2] = new Character("Merchant Man", 5, 9, items[0], Character.CharType.ALLY, jsonObj);
-        characters[3] = new Character("Bandit", 1, 1, items[0], Character.CharType.ENEMY, 7, 2);
-        characters[5] = new Character("Jarl Yassef", 1, 1, null, Character.CharType.ALLY, jsonObj);
-        characters[6] = new Character("Advisor Jax", 1, 1, null, Character.CharType.ALLY, jsonObj);
-        characters[7] = new Character("Rebel", 5, 9, items[0], Character.CharType.ENEMY, 10, 5);
+        characters[1] = new Character("Dark Slime", 3, 5, null, Character.CharType.ENEMY, 4, 1);
+        characters[2] = new Character("Dark Slime", 3, 5, null, Character.CharType.ENEMY, 4, 1);
+        characters[3] = new Character("Dark Slime", 3, 5, null, Character.CharType.ENEMY, 4, 1);
+        characters[4] = new Character("Stranger", 1, 1, items[0], Character.CharType.ALLY, jsonObj);
+        characters[5] = new Character("Merchant Man", 1, 1, items[0], Character.CharType.ALLY, jsonObj);
+        characters[6] = new Character("Bandit", 5, 8, items[0], Character.CharType.ENEMY, 7, 2);
+        characters[7] = new Character("Bandit", 5, 8, items[0], Character.CharType.ENEMY, 7, 2);
+        characters[8] = new Character("Jarl Yassef", 1, 1, null, Character.CharType.ALLY, jsonObj);
+        characters[9] = new Character("Advisor Jax", 1, 1, null, Character.CharType.ALLY, jsonObj);
+        characters[10] = new Character("Rebel", 5, 9, items[0], Character.CharType.ENEMY, 10, 5);
+        characters[11] = new Character("Rebel", 5, 9, items[0], Character.CharType.ENEMY, 10, 5);
+        characters[12] = new Character("Rebel", 5, 9, items[0], Character.CharType.ENEMY, 10, 5);
+        characters[13] = new Character("Rebel", 5, 9, items[0], Character.CharType.ENEMY, 10, 5);
+        characters[14] = new Character("Rebel", 5, 9, items[0], Character.CharType.ENEMY, 10, 5);
         ArrayList shopItems = new ArrayList();
         shopItems.add(items[2]);
         shopItems.add(items[4]);
         shopItems.add(items[5]);
-        characters[4] = new Character("Juno", 1, 1, null, Character.CharType.MERCHANT, shopItems);
+        characters[15] = new Character("Juno", 1, 1, null, Character.CharType.MERCHANT, shopItems);
 
         // Progression order is backwards to have link backs.
 
         rooms[11] = new Room("Rebel Base", "You walk up to the door and kick it in. You find 3 rebels sitting at a table with a map on it. They climb to their feet.", 4);
-        rooms[11].addCharacter(characters[7]);
-        rooms[11].addCharacter(characters[7]);
-        rooms[11].addCharacter(characters[7]);
+        rooms[11].addCharacter(characters[12]);
+        rooms[11].addCharacter(characters[13]);
+        rooms[11].addCharacter(characters[14]);
 
         rooms[10] = new Room("Back Alley", "Walking in between buildings you find some rebels stading around a door. \nThey shout at you to scram or face the consequences.", 4);
-        rooms[10].addCharacter(characters[7]);
-        rooms[10].addCharacter(characters[7]);
+        rooms[10].addCharacter(characters[10]);
+        rooms[10].addCharacter(characters[11]);
         rooms[10].addExit(rooms[11]);
 
         rooms[9] = new Room("Thalud Keep", "You reach the end of the road and find a keep. You open the door and walk into a giant room. \n A jarl sits on a throne in the center of the room with his advisor to his right.", 3);
-        rooms[9].addCharacter(characters[5]);
-        rooms[9].addCharacter(characters[6]);
+        rooms[9].addCharacter(characters[8]);
+        rooms[9].addCharacter(characters[9]);
 
         rooms[8] = new Room("Merchant Shop", "You see a sign above an ornate building with the name Junos Shop. \nEntering the shop you see armor and weapons lined on the walls and a counter with potions lining it. \nAt this counter you see the Merchant you saved on the road.", 3);
-        rooms[8].addCharacter(characters[4]);
+        rooms[8].addCharacter(characters[15]);
 
-        rooms[7] = new Room("Thalud Gate", "You walk up the road and each an open gate to Thalud. \nWalking down the street you see buildings and shops line the street with people busying around the street.", 3);
+        rooms[7] = new Room("Thalud Gate", "You walk up the road and each an open gate to Thalud. \nWalking down the street you see buildings and shops line the street with people busying around the street.", 3, questManager.getQuest(5));
         rooms[7].addExit(rooms[8]);
         rooms[7].addExit(rooms[9]);
         rooms[7].addExit(rooms[10]);
@@ -75,9 +83,9 @@ public class AdventureModel {
         rooms[10].addExit(rooms[7]);
 
         rooms[6] = new Room("Road to Thalud", "Heading down the road you find a pair of bandits harassing a man ", 2, questManager.getQuest(3));
-        rooms[6].addCharacter(characters[3]);
-        rooms[6].addCharacter(characters[3]);
-        rooms[6].addCharacter(characters[2]);
+        rooms[6].addCharacter(characters[6]);
+        rooms[6].addCharacter(characters[7]);
+        rooms[6].addCharacter(characters[5]);
         rooms[6].addExit(rooms[7]);
         rooms[7].addExit(rooms[6]);
 
@@ -87,17 +95,17 @@ public class AdventureModel {
         rooms[6].addExit(rooms[5]);
 
         rooms[4] = new Room("Cave Entrance", "There is a large entrance to a cave here, you see a sign pointing inwards saying 'Thalud'. You see a dark slime hopping your way around the entrance of the hole.", 1);
-        rooms[4].addCharacter(characters[0]);
+        rooms[4].addCharacter(characters[3]);
         rooms[4].addExit(rooms[5]);
         rooms[5].addExit(rooms[4]);
 
         rooms[3] = new Room("Deep Forest", "As you walk deeper into the forest the trees get denser and denser and the light gets darker and darker. You come up apon some slimes blocking your path.", 1);
-        rooms[3].addCharacter(characters[0]);
-        rooms[3].addCharacter(characters[0]);
+        rooms[3].addCharacter(characters[2]);
+        rooms[3].addCharacter(characters[1]);
         rooms[3].addItem(items[2]);
 
         rooms[2] = new Room("Forest", "Trees now surround you and the light of the sun gets a bit darker, covered by the overhang of the leaves above. You see a man leaning up against a tree", 0);
-        rooms[2].addCharacter(characters[1]);
+        rooms[2].addCharacter(characters[4]);
         rooms[2].addExit(rooms[3]);
         rooms[2].addExit(rooms[4]);
         rooms[3].addExit(rooms[2]);
@@ -161,7 +169,7 @@ public class AdventureModel {
                         if (Objects.equals(exit.getName().toUpperCase(), roomName) && player.getCurrentLevel() >= exit.getRoomRequirement()) {
                             currentLocation = exit;
                             if (currentLocation.getTriggerQuest() != null) {
-                                questManager.acceptQuest(questManager.getQuest(4));
+                                questManager.acceptQuest(questManager.getQuest(exit.getTriggerQuest().getQuestId()));
                                 System.out.println("Started new quest, check journal for more information.");
                             }
                             player.setCurrentRoom(exit);
@@ -256,7 +264,6 @@ public class AdventureModel {
                         Item equippingItem = player.getInventory().get(Integer.parseInt(input.next()) - 1);
                         if (equippingItem != null && equippingItem.getType() != Item.ItemType.CONSUMABLE) {
                             player.equipItem(equippingItem);
-                            System.out.println("You equipped " + equippingItem.getName() + ".");
                         }
                         else {
                             System.out.println("Could not find item in inventory.");
@@ -280,7 +287,6 @@ public class AdventureModel {
                         Item unequippingItem = player.getInventory().get(Integer.parseInt(input.next()) - 1);
                         if (unequippingItem != null && unequippingItem.getType() != Item.ItemType.CONSUMABLE) {
                             player.unequipItem(unequippingItem);
-                            System.out.println("You unequipped " + unequippingItem.getName() + ".");
                         }
                         else {
                             System.out.println("Could not find item in inventory.");
@@ -328,7 +334,7 @@ public class AdventureModel {
                                 if (targetEnemy.getType().equals(Character.CharType.ENEMY)) {
                                     player.fightEnemy(targetEnemy);
                                     for (Character entity : currentLocation.getCharacters()) {
-                                        if (entity.getType() == Character.CharType.ENEMY && entity.getHealth() >= 0) {
+                                        if (entity.getType() == Character.CharType.ENEMY && entity.getHealth() > 0) {
                                             entity.fightPlayer(player);
                                         }
                                     }
@@ -473,6 +479,7 @@ public class AdventureModel {
                             }
                             else {
                                 System.out.println(ally.getName() + ": " + selectedDialogue.getText());
+                                ally.advanceDialog(selectedDialogue.getDialogJumpPoint());
                             }
                         }
                     }
@@ -492,18 +499,18 @@ public class AdventureModel {
 
     public void showMenu() {
         System.out.println("Available commands:");
-        System.out.println("Go <full area name>");
-        System.out.println("Look");
-        System.out.println("Attack <enemy #>");
-        System.out.println("Inventory <item #>");
-        System.out.println("Stats");
-        System.out.println("Journal");
-        System.out.println("Talk");
+        System.out.println("Go or Travel <full area name>");
+        System.out.println("Look | l");
+        System.out.println("Fight | f <enemy #>");
+        System.out.println("Inventory | i");
+        System.out.println("Stats | s");
+        System.out.println("Journal | j");
+        System.out.println("Talk | t <entity #>");
         System.out.println("Take <item #> or All");
-        System.out.println("Drop <item #>");
-        System.out.println("Use <item #>");
-        System.out.println("Equip <item #>");
-        System.out.println("Unequip <item #>");
+        System.out.println("Drop | d <item #>");
+        System.out.println("Use | u <item #>");
+        System.out.println("Equip | e <item #>");
+        System.out.println("Unequip | un <item #>");
         System.out.println("Exit");
         System.out.println();
     }

@@ -16,9 +16,6 @@ public class Character {
     private int minReward;
     private ArrayList<Item> shopItems;
 
-
-
-
     public enum CharType {
         ENEMY,
         ALLY,
@@ -106,8 +103,8 @@ public class Character {
                 damageRoll += weapon.getModifier();
 
                 System.out.println(name + " dealt " + damageRoll + " damage to you.");
-                System.out.println("You are at " + player.getCurrentHealth() + "/" + player.getMaxHealth() + " health.");
                 player.takeDamage(damageRoll);
+                System.out.println("You are at " + player.getCurrentHealth() + "/" + player.getMaxHealth() + " health.");
             }
             else {
                 rand = new Random();
@@ -124,7 +121,7 @@ public class Character {
     }
 
     public void takeDamage(int damage) {
-        health -= damage;
+        health = health - damage;
         if (health <= 0) {
             isDead = true;
         }

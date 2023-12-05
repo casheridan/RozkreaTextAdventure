@@ -74,11 +74,17 @@ public class Player {
         switch (item.getType()) {
             case ARMOR -> {
                 if (equippedArmor != null) System.out.println("You already have a set of armor equipped. You must unequip it first.");
-                else equippedArmor = item;
+                else {
+                    equippedArmor = item;
+                    System.out.println("You equipped " + item.getName() + ".");
+                }
             }
             case WEAPON -> {
                 if (rightHand != null) System.out.println("You already have an weapon in hand. You must unequip it first.");
-                else rightHand = item;
+                else {
+                    rightHand = item;
+                    System.out.println("You equipped " + item.getName() + ".");
+                }
             }
         }
     }
@@ -86,12 +92,20 @@ public class Player {
     public void unequipItem(Item item) {
         switch (item.getType()) {
             case ARMOR -> {
-                if (equippedArmor != null) System.out.println("You don't have any armor equiped.");
+                if (equippedArmor == null) System.out.println("You don't have any armor equipped.");
+                else {
+                    equippedArmor = null;
+                    System.out.println("You unequipped " + item.getName() + ".");
+                }
             }
             case WEAPON -> {
-                if (rightHand != null) System.out.println("You don't have anything equiped in your right hand.");
+                if (rightHand == null) System.out.println("You don't have anything equipped in your right hand.");
+                else {
+                    rightHand = null;
+                    System.out.println("You unequipped " + item.getName() + ".");
+                }
             }
-            default -> System.out.println("This item isn't equipable.");
+            default -> System.out.println("This item isn't equippable.");
         }
     }
 
@@ -143,6 +157,7 @@ public class Player {
         Random rand = new Random();
         int max = 20, min = 1;
         int hitRoll = rand.nextInt(max - min + 1) + min;
+        hitRoll = hitRoll + 3;
 //        wait(3000);
         System.out.println("You rolled a " + hitRoll + " to hit.");
         if (hitRoll >= enemy.getArmorClass()) {

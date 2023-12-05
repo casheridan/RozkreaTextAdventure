@@ -89,7 +89,7 @@ public class Room {
     }
 
     public Item takeRoomItem(int itemNum) {
-        Item itemToTake = contents.get(itemNum);
+        Item itemToTake = contents.get(itemNum - 1);
         contents.remove(itemNum - 1);
         return itemToTake;
     }
