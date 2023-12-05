@@ -1,19 +1,56 @@
 {
-  "Colton": {
+  "Stranger": {
     "0": {
-      "text": "I need help with defeating some slimes, could you help me?",
+      "text": "Who are you? You shouldn't sneak up on someone in the middle of a forest filled with those slimes.\n I might trust you if you go and kill some slimes. I saw 2 deeper in the forest and 1 by the cave entrance.",
       "quest": "2",
       "reward": "30",
       "jump": "1"
     },
     "1": {
-      "text": "this is the second dialog option",
+      "text": "I still don't trust you. Go kill those slimes first.",
+      "quest": "2",
+      "jump": "2"
+    },
+    "2": {
+      "text": "Fine, you seem trustworthy enough. There's a town through that cave entrance, \nhead through there and you should reach Thalud. Good Luck.",
+      "quest": "0",
+      "jump": "2"
+    }
+  },
+  "Merchant Man": {
+    "0": {
+      "text": "Thank you for saving me, find me in my shop in Thalud and I can hook you up with some better gear.",
+      "quest": "0",
+      "jump": "1"
+    },
+    "1": {
+      "text": "I'll see you in the city.",
       "quest": "0",
       "jump": "1"
     }
   },
-  "Other Character": {
-    "text": "this is a test",
-    "reward": "30"
+  "Jarl Yassef": {
+    "0": {
+      "text": "I don't know if I can do this. They are just becoming more and more of a problem. \nAdvisor Jax: Maybe you should hire a mercenary, the guards obviously aren't handling this correctly. \n Jarl Yassef: Your right... hold there, you seem like a mercenary with that get-up how would you like to help Thalud? \nWould you help use take care of these rebels?",
+      "quest": "5",
+      "jump": "1"
+    },
+    "1": {
+      "text": "Thank you, I'll pay you when the threat is handled. And only then.",
+      "quest": "5",
+      "jump": "2"
+    },
+    "2": {
+      "text": "Thank you for handling the threat to my town. Here your gold for your work.",
+      "quest": "0",
+      "jump": "2"
+    }
+  },
+  "Advisor Jax": {
+    "0": {
+      "text": "I am the advisor to the Jarl. Nice to meet you.",
+      "quest": "0",
+      "jump": "0"
+    }
   }
 }

@@ -1,32 +1,39 @@
-public class FetchQuest extends Quest {
+import java.util.Objects;
+
+public class TalkQuest extends Quest {
     private final String questName;
     private final String questDesc;
     private final int questId;
+    private final String relAllyName;
+    private boolean completed;
     private final int reward;
-    private int currentCount;
-    private final int maxAmount;
     private final boolean isTalkQuest, isDefendQuest;
 
-    public FetchQuest(String name, String desc, int maxAmount, int reward, int id) {
+    public TalkQuest(String name, String desc, String allyName, int reward, int id) {
         this.questName = name;
         this.questDesc = desc;
-        this.maxAmount = maxAmount;
-        this.currentCount = 0;
         this.questId = id;
+        this.relAllyName = allyName;
         this.reward = reward;
-        this.isTalkQuest = false;
+        completed = false;
+        this.isTalkQuest = true;
         this.isDefendQuest = false;
     }
 
     @Override
     public void satisfyRequirement(Object obj) {
-        if (obj instanceof Item) {
-            satisfyRequirement((Item) obj);
+        // Implementation or call the specific method
+        if (obj instanceof Character) {
+            satisfyRequirement((Character) obj);
         }
     }
 
-    public void satisfyRequirement(Item item) {
-        // implementation
+    public void satisfyRequirement(Character ally) {
+        if (Objects.equals(ally.getName(), relAllyName)) completeObjective();
+    }
+
+    public void completeObjective() {
+        completed = true;
     }
 
     @Override
@@ -41,7 +48,7 @@ public class FetchQuest extends Quest {
 
     @Override
     public String getRequirements() {
-        return "Collected: " + currentCount + "/" + maxAmount;
+        return "Talk to: " + relAllyName;
     }
 
     @Override
@@ -51,7 +58,7 @@ public class FetchQuest extends Quest {
 
     @Override
     public boolean getCompleted() {
-        return currentCount == maxAmount;
+        return completed;
     }
 
     @Override

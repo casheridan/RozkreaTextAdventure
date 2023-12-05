@@ -6,14 +6,18 @@ public class Player {
     private Item rightHand;
     private Item equippedArmor;
     private int health;
-    private final int maxHealth;
+    private int maxHealth;
     private final ArrayList<Item> inventory;
+    private int currentLevel;
+    private int currentGold;
 
     public Player(Room location, int health) {
         this.currentRoom = location;
         this.inventory = new ArrayList<>();
         this.maxHealth = health;
         this.health = this.maxHealth;
+        this.currentLevel = 0;
+        this.currentGold = 0;
     }
 
     public Room getCurrentRoom() {
@@ -28,6 +32,16 @@ public class Player {
         return health;
     }
 
+    public int getCurrentGold() { return currentGold; }
+
+    public void addGold(int gold) {
+        currentGold += gold;
+    }
+
+    public void removeGold(int gold) {
+        currentGold -= gold;
+    }
+
     public int getMaxHealth() {
         return maxHealth;
     }
@@ -38,6 +52,24 @@ public class Player {
 
     public ArrayList<Item> getInventory() { return inventory; }
 
+    public int getCurrentLevel() { return currentLevel; }
+
+    public void increaseLevel() {
+        currentLevel++;
+        if (currentLevel == 2) {
+            maxHealth += 2;
+            setHealth(maxHealth);
+        }
+        if (currentLevel == 3) {
+            maxHealth += 4;
+            setHealth(maxHealth);
+        }
+        if (currentLevel == 4) {
+            maxHealth += 4;
+            setHealth(maxHealth);
+        }
+    }
+
     public void equipItem(Item item) {
         switch (item.getType()) {
             case ARMOR -> {
@@ -47,9 +79,6 @@ public class Player {
             case WEAPON -> {
                 if (rightHand != null) System.out.println("You already have an weapon in hand. You must unequip it first.");
                 else rightHand = item;
-            }
-            case CONSUMABLE -> {
-
             }
         }
     }

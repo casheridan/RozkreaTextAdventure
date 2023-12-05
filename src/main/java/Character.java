@@ -1,8 +1,6 @@
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
+
 import org.json.simple.JSONObject;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Character {
     private final String name;
@@ -12,15 +10,21 @@ public class Character {
     private final CharType type;
     private boolean isDead;
     private Map<Integer, Dialogue> dialogs;
-    private ArrayList<Quest> quests;
+    private Quest activeQuest;
     private int condition;
+    private int maxReward;
+    private int minReward;
+    private ArrayList<Item> shopItems;
+
+
+
 
     public enum CharType {
         ENEMY,
-        ALLY
+        ALLY,
+        MERCHANT;
     }
-
-    public Character(String name, int health, int armorClass, Item weapon, CharType type) {
+    public Character(String name, int health, int armorClass, Item weapon, CharType type, int max, int min) {
         this.name = name;
         this.health = health;
         this.isDead = false;
@@ -28,8 +32,10 @@ public class Character {
         this.weapon = weapon;
         this.type = type;
         this.condition = 0;
+        this.activeQuest = null;
+        this.maxReward = max;
+        this.minReward = min;
     }
-
     public Character(String name, int health, int armorClass, Item weapon, CharType type, JSONObject jsonData) {
         this.name = name;
         this.health = health;
@@ -40,6 +46,19 @@ public class Character {
         this.dialogs = new HashMap<>();
         populateDialog(jsonData);
         this.condition = 0;
+        this.activeQuest = null;
+    }
+
+    public Character(String name, int health, int armorClass, Item weapon, CharType type, ArrayList<Item> shopItems) {
+        this.name = name;
+        this.health = health;
+        this.isDead = false;
+        this.armorClass = armorClass;
+        this.weapon = weapon;
+        this.type = type;
+        this.condition = 0;
+        this.activeQuest = null;
+        this.shopItems = shopItems;
     }
 
     public String getName() {
@@ -54,6 +73,11 @@ public class Character {
         return armorClass;
     }
 
+    public int getGoldReward() {
+        Random rand = new Random();
+        return rand.nextInt((maxReward - minReward + 1) + minReward);
+    }
+
     public boolean getDeathStatus() {
         return isDead;
     }
@@ -61,6 +85,10 @@ public class Character {
     public int getCondition() {
         return condition;
     }
+
+    public void setActiveQuest(Quest quest) { this.activeQuest = quest; }
+
+    public Quest getActiveQuest() { return activeQuest; }
 
     public void fightPlayer(Player player) {
         Random rand = new Random();
@@ -78,6 +106,7 @@ public class Character {
                 damageRoll += weapon.getModifier();
 
                 System.out.println(name + " dealt " + damageRoll + " damage to you.");
+                System.out.println("You are at " + player.getCurrentHealth() + "/" + player.getMaxHealth() + " health.");
                 player.takeDamage(damageRoll);
             }
             else {
@@ -101,6 +130,8 @@ public class Character {
         }
     }
 
+    public int getHealth() { return health; }
+
     public void advanceDialog(int val) {
         condition = val;
     }
@@ -120,5 +151,22 @@ public class Character {
 
     public Dialogue getDialogueBasedOnCondition(int condition) {
         return this.dialogs.getOrDefault(condition, null);
+    }
+
+    public void showShop() {
+        for (int i = 0; i < shopItems.size(); i++) {
+            System.out.println((i + 1) + ": " + shopItems.get(i).getName() + " " + shopItems.get(i).getItemPrice() + "gp");
+        }
+    }
+
+    public Item getShopItem(int i) {
+        Item item = shopItems.get(i - 1);
+        if (item.getType().equals(Item.ItemType.CONSUMABLE) || item.getType().equals(Item.ItemType.POTION)) {
+            return item;
+        }
+        else {
+            shopItems.remove(item);
+            return item;
+        }
     }
 }

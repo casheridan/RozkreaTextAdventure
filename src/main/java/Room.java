@@ -6,14 +6,29 @@ public class Room {
     private final ArrayList<Room> exits;
     private final ArrayList<Item> contents;
     private final ArrayList<Character> characters;
+    private int roomRequirement;
+    private Quest triggerQuest;
 
-    public Room(String name, String desc) {
+    public Room(String name, String desc, int req) {
         this.name = name;
         this.desc = desc;
+        this.roomRequirement = req;
         this.exits = new ArrayList<>();
         this.contents = new ArrayList<>();
         this.characters = new ArrayList<>();
     }
+
+    public Room(String name, String desc, int req, Quest quest) {
+        this.name = name;
+        this.desc = desc;
+        this.roomRequirement = req;
+        this.exits = new ArrayList<>();
+        this.contents = new ArrayList<>();
+        this.characters = new ArrayList<>();
+        this.triggerQuest = quest;
+    }
+
+    public Quest getTriggerQuest() { return triggerQuest; }
 
     public void addExit(Room room) {
         exits.add(room);
@@ -31,6 +46,8 @@ public class Room {
         return name;
     }
 
+    public int getRoomRequirement() { return this.roomRequirement; }
+
     public String getDescription() {
         StringBuilder tempDesc = new StringBuilder(desc);
 
@@ -38,7 +55,7 @@ public class Room {
             tempDesc.append("\n\nThere is no one here.\n");
         }
         else {
-            tempDesc.append("\n\nThere are ").append(contents.size()).append(" entities here.\n");
+            tempDesc.append("\n\nThere are ").append(characters.size()).append(" entities here.\n");
             for (int i = 0; i < characters.size(); i++) {
                 tempDesc.append(i + 1).append(": ").append(characters.get(i).getName()).append("\n");
             }
@@ -72,9 +89,13 @@ public class Room {
     }
 
     public Item takeRoomItem(int itemNum) {
-        Item itemToTake = contents.get(itemNum - 1);
+        Item itemToTake = contents.get(itemNum);
         contents.remove(itemNum - 1);
         return itemToTake;
+    }
+
+    public void takeAllRoomItems() {
+        contents.removeAll(contents);
     }
 
     public void displayExits() {

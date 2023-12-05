@@ -7,28 +7,33 @@ public class Item {
         WEAPON,
         ARMOR,
         POTION,
-        CONSUMABLE
+        CONSUMABLE,
+        MISC
     }
     private int diceMax;
     private int modifier;
+    private int itemPrice;
 
-    public Item(String name, ItemType type) {
+    public Item(String name, ItemType type, int price) {
         this.name = name;
         this.type = type;
+        this.itemPrice = price;
     }
 
-    public Item(String name, ItemType type, int mod) {
+    public Item(String name, ItemType type, int mod, int price) {
         this.name = name;
         this.type = type;
         this.diceMax = 0;
         this.modifier = mod;
+        this.itemPrice = price;
     }
 
-    public Item(String name, ItemType type, int dice, int mod) {
+    public Item(String name, ItemType type, int dice, int mod, int price) {
         this.name = name;
         this.type = type;
         this.diceMax = dice;
         this.modifier = mod;
+        this.itemPrice = price;
     }
 
     public String getName() {
@@ -47,6 +52,8 @@ public class Item {
         return modifier;
     }
 
+    public int getItemPrice() { return itemPrice; }
+
     public void use(Player player) {
         if (type == ItemType.POTION) {
             // 0 = health, 1 = experience
@@ -62,7 +69,19 @@ public class Item {
             }
         }
         else {
-            // TODO: when we have more items that are consumable add effects here
+            switch (name) {
+                case "Gold Pouch" -> {
+                    Random rand = new Random();
+                    int max = 15, min = 5;
+                    int gold = rand.nextInt(max - min + 1) + min;
+                    player.addGold(gold);
+                    System.out.println("Added " + gold + " gold.");
+                }
+                case "Map of Hitpoints" -> {
+                    System.out.println("The map has a bunch of red cicles on certain buildings in Thalud. \nOne circle has a skull with a dagger in it next to the Keep.");
+                }
+                default -> System.out.println("Invalid Item");
+            }
         }
     }
 }
