@@ -33,13 +33,25 @@ public class QuestManager {
     }
 
     public Quest getAcceptedQuest(int id) {
-        for (Quest quest : acceptedQuests) {
-            if (quest.getQuestId() == id) return quest;
+        for (int i = 0; i < acceptedQuests.size(); i++) {
+            Quest quest = acceptedQuests.get(i);
+            if (quest != null) {
+                if (quest.getQuestId() == id) return quest;
+            }
         }
         return null;
     }
 
     public void completeQuest(int id) {
-        acceptedQuests.removeIf(quest -> quest.getQuestId() == id);
+        for (int i = 0; i < acceptedQuests.size(); i++) {
+            Quest quest = acceptedQuests.get(i);
+            if (quest != null) {
+                if (quest.getQuestId() == id) acceptedQuests.remove(quest);
+            }
+        }
+    }
+
+    public void completeQuestWithQuest(Quest quest) {
+        acceptedQuests.remove(quest);
     }
 }

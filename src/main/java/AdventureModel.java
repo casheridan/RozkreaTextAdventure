@@ -26,13 +26,14 @@ public class AdventureModel {
         Reader reader = new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream("/dialog.json")));
         JSONObject jsonObj = (JSONObject) parser.parse(reader);
 
-        items[0] = new Item("Short Sword", Item.ItemType.WEAPON, 8, 1, 5);
+        items[0] = new Item("Short Sword", Item.ItemType.WEAPON, 6, 1, 5);
         items[1] = new Item("Padded Armor", Item.ItemType.ARMOR, 11, 5);
         items[2] = new Item("Health Potion", Item.ItemType.POTION, 10);
         items[3] = new Item("Gold Pouch", Item.ItemType.CONSUMABLE, 1);
         items[4] = new Item("Long Sword", Item.ItemType.WEAPON, 10, 3, 15);
         items[5] = new Item("Chainmail", Item.ItemType.ARMOR, 13, 15);
         items[6] = new Item("Map of Hitpoints", Item.ItemType.MISC, 5);
+        items[7] = new Item("Dagger", Item.ItemType.WEAPON, 4, 0, 5);
 
         characters[0] = new Character("Dark Slime", 3, 5, null, Character.CharType.ENEMY, 4, 1);
         characters[1] = new Character("Dark Slime", 3, 5, null, Character.CharType.ENEMY, 4, 1);
@@ -40,8 +41,8 @@ public class AdventureModel {
         characters[3] = new Character("Dark Slime", 3, 5, null, Character.CharType.ENEMY, 4, 1);
         characters[4] = new Character("Stranger", 1, 1, items[0], Character.CharType.ALLY, jsonObj);
         characters[5] = new Character("Merchant Man", 1, 1, items[0], Character.CharType.ALLY, jsonObj);
-        characters[6] = new Character("Bandit", 5, 8, items[0], Character.CharType.ENEMY, 7, 2);
-        characters[7] = new Character("Bandit", 5, 8, items[0], Character.CharType.ENEMY, 7, 2);
+        characters[6] = new Character("Bandit", 5, 8, items[7], Character.CharType.ENEMY, 7, 2);
+        characters[7] = new Character("Bandit", 5, 8, items[7], Character.CharType.ENEMY, 7, 2);
         characters[8] = new Character("Jarl Yassef", 1, 1, null, Character.CharType.ALLY, jsonObj);
         characters[9] = new Character("Advisor Jax", 1, 1, null, Character.CharType.ALLY, jsonObj);
         characters[10] = new Character("Rebel", 5, 9, items[0], Character.CharType.ENEMY, 10, 5);
@@ -57,15 +58,16 @@ public class AdventureModel {
 
         // Progression order is backwards to have link backs.
 
-        rooms[11] = new Room("Rebel Base", "You walk up to the door and kick it in. You find 3 rebels sitting at a table with a map on it. They climb to their feet.", 4);
+        rooms[11] = new Room("Rebel Base", "You walk up to the door and kick it in. You find 3 rebels sitting at a table with a map on it. They climb to their feet.", 5);
         rooms[11].addCharacter(characters[12]);
         rooms[11].addCharacter(characters[13]);
         rooms[11].addCharacter(characters[14]);
 
-        rooms[10] = new Room("Back Alley", "Walking in between buildings you find some rebels stading around a door. \nThey shout at you to scram or face the consequences.", 4);
+        rooms[10] = new Room("Back Alley", "Walking in between buildings you find some rebels stading around a door. \nThey shout at you to scram or face the consequences.", 5);
         rooms[10].addCharacter(characters[10]);
         rooms[10].addCharacter(characters[11]);
         rooms[10].addExit(rooms[11]);
+        rooms[11].addExit(rooms[10]);
 
         rooms[9] = new Room("Thalud Keep", "You reach the end of the road and find a keep. You open the door and walk into a giant room. \n A jarl sits on a throne in the center of the room with his advisor to his right.", 3);
         rooms[9].addCharacter(characters[8]);
@@ -195,7 +197,7 @@ public class AdventureModel {
                     currentLocation.displayExits();
                 }
                 case "INVENTORY", "I" -> player.printInventory();
-                case "TAKE" -> {
+                case "TAKE", "P" -> {
                     if (enemyCheck(currentLocation)) {
                         System.out.println("You cannot loot the area, you are in combat!");
                         input = new Scanner(System.in);
@@ -241,9 +243,16 @@ public class AdventureModel {
                             input = new Scanner(System.in);
                         }
                         else {
-                            Item droppedItem = player.dropInventoryItem(Integer.parseInt(input.next()));
-                            currentLocation.addItem(droppedItem);
-                            System.out.println("You dropped " + droppedItem.getName());
+                            int dropItemNum = Integer.parseInt(input.next()) - 1;
+                            Item dropItem = player.getInventory().get(dropItemNum);
+                            if (dropItem != player.getEquippedArmor() && dropItem != player.getRightHand()) {
+                                Item droppedItem = player.dropInventoryItem(dropItemNum + 1);
+                                currentLocation.addItem(droppedItem);
+                                System.out.println("You dropped " + droppedItem.getName());
+                            }
+                            else {
+                                System.out.println("Cannot drop equipped items.");
+                            }
                         }
                     }
                     catch (IndexOutOfBoundsException e) {
@@ -343,8 +352,11 @@ public class AdventureModel {
                                         int enemyGold = targetEnemy.getGoldReward();
                                         player.addGold(enemyGold);
                                         System.out.println("You killed " + targetEnemy.getName() + " and got " + enemyGold + "gp.");
-                                        for (Quest quest : questManager.getAcceptedQuests()) {
-                                            quest.satisfyRequirement(targetEnemy);
+                                        for (int i = 0; i < questManager.getAcceptedQuests().size(); i++) {
+                                            Quest quest = questManager.getAcceptedQuests().get(i);
+                                            if (quest != null) {
+                                                quest.satisfyRequirement(targetEnemy);
+                                            }
                                         }
                                     }
                                 } else System.out.println("You cannot attack allies!");
@@ -354,7 +366,7 @@ public class AdventureModel {
                         }
                     }
                     catch(NumberFormatException e) {
-                            System.out.println("Please give a number");
+                        System.out.println("Please give a number");
                     }
                 }
                 case "STATS", "S" -> {
@@ -375,9 +387,12 @@ public class AdventureModel {
                         System.out.println("You have not accepted any quests.");
                     }
                     else {
-                        for (Quest quest : questManager.getAcceptedQuests()) {
-                            System.out.println(counter + ": " + quest.getQuestName() + " | Description: " + quest.getQuestDescription());
-                            System.out.println(quest.getRequirements());
+                        for (int i = 0; i < questManager.getAcceptedQuests().size(); i++) {
+                            Quest quest = questManager.getAcceptedQuests().get(i);
+                            if (quest != null) {
+                                System.out.println(counter + ": " + quest.getQuestName() + " | Description: " + quest.getQuestDescription());
+                                System.out.println(quest.getRequirements());
+                            }
                         }
                     }
                 }
@@ -391,23 +406,27 @@ public class AdventureModel {
                     try {
                         Character ally = currentLocation.getCharacter(Integer.parseInt(input.next()));
 
-                        if (!questManager.getAcceptedQuests().isEmpty()) {
+                        ArrayList<Quest> acceptedQuests = questManager.getAcceptedQuests();
+
+                        if (!acceptedQuests.isEmpty()) {
                             Quest q = null;
-                            for (Quest quest : questManager.getAcceptedQuests()) {
-                                if (quest.getIsTalkQuest()) {
-                                    quest.satisfyRequirement(ally);
-                                    q = quest;
-                                }
-                                if (quest.getIsDefendQuest()) {
-                                    quest.satisfyRequirement(ally);
-                                    q = quest;
+                            for (int i = 0; i < acceptedQuests.size(); i++) {
+                                Quest quest = acceptedQuests.get(i);
+                                if (quest != null) {
+                                    if (quest.getIsTalkQuest()) {
+                                        quest.satisfyRequirement(ally);
+                                        if (quest.getCompleted()) q = quest;
+                                    }
+                                    if (quest.getIsDefendQuest()) {
+                                        quest.satisfyRequirement(ally);
+                                        if (quest.getCompleted()) q = quest;
+                                    }
                                 }
                             }
                             if (q != null) {
                                 player.addGold(q.getReward());
                                 player.increaseLevel();
-                                questManager.getAcceptedQuest(q.getQuestId());
-                                questManager.completeQuest(q.getQuestId());
+                                questManager.completeQuestWithQuest(q);
                                 System.out.println(q.getQuestName() + " completed. " + q.getReward() + "gp added and gained a level.");
                             }
                         }
@@ -479,7 +498,6 @@ public class AdventureModel {
                             }
                             else {
                                 System.out.println(ally.getName() + ": " + selectedDialogue.getText());
-                                ally.advanceDialog(selectedDialogue.getDialogJumpPoint());
                             }
                         }
                     }
@@ -506,7 +524,7 @@ public class AdventureModel {
         System.out.println("Stats | s");
         System.out.println("Journal | j");
         System.out.println("Talk | t <entity #>");
-        System.out.println("Take <item #> or All");
+        System.out.println("Take | p <item #> or All");
         System.out.println("Drop | d <item #>");
         System.out.println("Use | u <item #>");
         System.out.println("Equip | e <item #>");

@@ -29,7 +29,8 @@ public class TalkQuest extends Quest {
     }
 
     public void satisfyRequirement(Character ally) {
-        if (Objects.equals(ally.getName(), relAllyName)) completeObjective();
+        String allyName = ally.getName();
+        if (allyName == relAllyName) completeObjective();
     }
 
     public void completeObjective() {
